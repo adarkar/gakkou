@@ -1,0 +1,70 @@
+<html>
+<head>
+</head>
+
+<body>
+  <svg id="svg" height="90%" viewBox="-400 -400 800 800"></svg>
+
+  <script src="../d3/d3.v5.min.js"></script>
+  <script src="../umath/umath.js"></script>
+  <script type="text/javascript">
+  function mkline(i,n) {
+    return {
+      xi: 0,
+      yi: 0,
+      xf: i/n*300,
+      yf: 200,
+      color: "skyblue"
+    };
+  }
+
+  function render(n, tt) {
+    let ds = Array(n).fill({}).map((_,i) => mkline(i,n));
+    let ls = d3.select("#svg").selectAll("g").data(ds);
+    ls.exit().remove();
+    let es = ls.enter().append("g");
+
+    function d_path(s) {
+      s.attr("d", function(d,i) {return d3.line()([[d.xi,-d.yi],[d.xf,-d.yf]]);})
+       .style("stroke", function(d,i) {return d.color;});
+    }
+    function d_doti(s) {
+      s.attr("cx", function(d,i) {return d.xi;})
+       .attr("cy", function(d,i) {return -d.yi;})
+       .attr("fill", function(d,i) {return d.color;});
+    }
+    function d_dotf(s) {
+      s.attr("cx", function(d,i) {return d.xf;})
+       .attr("cy", function(d,i) {return -d.yf;})
+       .attr("fill", function(d,i) {return d.color;});
+    }
+
+    d_path(es.append("path")
+      .style("fill", "none")
+    );
+    d_doti(es.append("circle")
+      .attr("class", "ci")
+      .attr("r", "2")
+    );
+    d_dotf(es.append("circle")
+      .attr("class", "cf")
+      .attr("r", "2")
+    );
+    let trans = d3.transition().duration(tt);
+    d_path(ls.select("path").transition(trans));
+    d_doti(ls.select("circle.ci").transition(trans));
+    d_dotf(ls.select("circle.cf").transition(trans));
+  }
+
+  render(20);
+
+  function animate(N, tt) {
+    let nn = 1;
+    let ii = setInterval(function() {
+      if (nn >= N) clearInterval(ii);
+      render(nn++, tt);
+    }, tt);
+  }
+  </script>
+</body>
+</html>

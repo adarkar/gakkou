@@ -1,0 +1,65 @@
+<html>
+<head>
+</head>
+
+<body>
+  <svg id="svg" width=800 height=800></svg>
+
+  <script src="../d3/d3.v5.min.js"></script>
+  <script type="text/javascript">
+  function mksquare(i) {
+    return {
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      color: "silver"
+    };
+  }
+
+  function render() {
+    function hh(k) { return function (d,i) { return mksquare(i)[k]; }; }
+
+    let tt = d3.transition().duration(3000);
+    let ds = Array(64).fill({});
+    let rs = d3.select("#svg").selectAll("g").data(ds).enter().append("g");
+    rs.transition(tt)
+      .attr("transform", function (d,i) {
+        let x = mksquare(i)["x"];
+        let y = mksquare(i)["y"];
+          return "translate("+ (x+0.5) +","+ (y+0.5) +")";
+      });
+    rs.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .style("stroke", "black")
+      .style("stroke-width", "1px")
+      .attr("width", 50)
+      .attr("height", 50)
+      .style("fill", "silver")
+      .transition(tt)
+      .attr("width", hh("width"))
+      .attr("height", hh("height"))
+      .style("fill", hh("color"))
+      ;
+    rs.append("text").text((d,i) => i)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "sans-serif")
+      .attr("fill", function(d,i) {
+          return d3.lab(hh("color")(d,i)).l > 50 ?
+            "black" : "white";
+        })
+      .attr("x", function(d,i){return 0.5 * hh("width")(d,i);})
+      .attr("y", function(d,i){return 0.5 * hh("height")(d,i);})
+      .attr("dy", "0.35em")
+      .transition(tt)
+      .attr("font-size", function(d,i) {
+          return 0.25 * Math.min(hh("width")(d,i), hh("height")(d,i));
+        })
+      ;
+  }
+
+  render();
+  </script>
+</body>
+</html>
